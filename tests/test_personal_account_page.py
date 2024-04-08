@@ -2,9 +2,7 @@ import pytest
 from pages.site_main_page import SiteMainPage
 from pages.auth_page import AuthPage
 from pages.personal_account_page import PersonalAccountPage
-import requests
-from data import Data
-import random
+from create_data import *
 import allure
 
 
@@ -13,25 +11,7 @@ class TestPersonalAccountPage:
 
     @classmethod
     def setup_class(cls):
-        payload = {
-            "email": f'krivova_webtest_5@mail.ru',
-            "password": '123456789',
-            "name": 'Xeniya'}
-        response_registration = requests.post(f'{Data.site_main_page}/api/auth/register', data=payload)
-        if response_registration.status_code == 200:
-            cls.user_info = {"email": payload.get('email'),
-                             "password": payload.get('password'),
-                             "name": payload.get('name'),
-                             "token": response_registration.json()["accessToken"]}
-        response_get_ingr = requests.get(f'{Data.site_main_page}/api/ingredients')
-        ingredients = response_get_ingr.json()['data']
-        random_ingr_id_1 = random.choice(list(ingredients))['_id']
-        random_ingr_id_2 = random.choice(list(ingredients))['_id']
-        random_ingr_list = [random_ingr_id_1, random_ingr_id_2]
-        payload = {"ingredients": random_ingr_list}
-        response = requests.post(f'{Data.site_main_page}/api/orders', headers={'Authorization': cls.user_info.get("token")},
-                                 data=payload)
-        cls.user_info["order_number"] = response.json()["order"]["number"]
+        cls.user_info = create_user_and_create_order()
 
     @allure.title('Проверка перехода по клику на «Личный кабинет» с главной страницы')
     @allure.description(
@@ -73,4 +53,4 @@ class TestPersonalAccountPage:
 
     @classmethod
     def teardown_class(cls):
-        requests.delete(f'{Data.site_main_page}/api/auth/user', headers={'Authorization': cls.user_info.get("token")})
+        requests.delete(f'{Data.site_main_page}{Data.endpoint_delete_user}', headers={'Authorization': cls.user_info.get("token")})

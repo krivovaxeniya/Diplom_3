@@ -1,10 +1,8 @@
-import allure
 import pytest
 from pages.site_main_page import SiteMainPage
 from pages.tape_order_page import TapeOrderPage
 from pages.personal_account_page import PersonalAccountPage
-import requests
-from data import Data
+from create_data import *
 
 
 class TestTapeOrderPage:
@@ -12,16 +10,7 @@ class TestTapeOrderPage:
 
     @classmethod
     def setup_class(cls):
-        payload = {
-            "email": f'krivova_webtest_5@mail.ru',
-            "password": '123456789',
-            "name": 'Xeniya'}
-        response_registration = requests.post(f'{Data.site_main_page}/api/auth/register', data=payload)
-        if response_registration.status_code == 200:
-            cls.user_info = {"email": payload.get('email'),
-                             "password": payload.get('password'),
-                             "name": payload.get('name'),
-                             "token": response_registration.json()["accessToken"]}
+        cls.user_info = register_new_user_and_return_user_info()
 
     @allure.title('Проверка перехода по клику на «Лента заказов» в шапке страницы')
     @allure.description('На главной странице сайта выполняется клик по ссылке "Лента заказов", выполняется проверка '
@@ -123,4 +112,4 @@ class TestTapeOrderPage:
 
     @classmethod
     def teardown_class(cls):
-        requests.delete(f'{Data.site_main_page}/api/auth/user', headers={'Authorization': cls.user_info.get("token")})
+        requests.delete(f'{Data.site_main_page}{Data.endpoint_delete_user}', headers={'Authorization': cls.user_info.get("token")})

@@ -30,6 +30,5 @@ def log_in_account(request, driver_browser):
     site_main_page = SiteMainPage(driver)
     site_main_page.click_on_log_in_account_button()
     auth_page = AuthPage(driver)
-    auth_page.send_keys_to_auth_form('krivova_webtest_5@mail.ru', '123456789')
+    auth_page.send_keys_to_auth_form(Data.user_data.get('email'), Data.user_data.get('password'))
     auth_page.click_on_enter_button()
-    return log_in_account
